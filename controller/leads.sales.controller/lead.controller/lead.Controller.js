@@ -60,6 +60,7 @@ export const getLeadById = async (req, res) => {
 // UPDATE Lead
 export const updateLead = async (req, res, next) => {
   try {
+    
     const { salesTLId, saleEmployeeId,saleEmployeeId2 } = req.body;
 
     // If TL ID is given, validate role
@@ -124,7 +125,7 @@ export const updateLead = async (req, res, next) => {
       contentShared,
       recceStatus,
       costumerStatus,
-      leadStatus: leadStatus?.trim() || "In Progress",
+      leadStatus: leadStatus?.trim() || "Pending",
       salesHodId,
       notes,
     };
@@ -132,6 +133,8 @@ export const updateLead = async (req, res, next) => {
     if (salesTLId) updateFields.salesTLId = salesTLId;
     if (saleEmployeeId) updateFields.saleEmployeeId = saleEmployeeId;
     if(saleEmployeeId2) updateFields.saleEmployeeId2=saleEmployeeId2;
+    if(saleEmployeeId) updateFields.leadStatus='In Progress';
+    if(saleEmployeeId2) updateFields.leadStatus='In Progress';
 
     console.log("updateFields",updateFields);
 
