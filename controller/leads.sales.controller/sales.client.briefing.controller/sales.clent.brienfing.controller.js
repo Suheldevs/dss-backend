@@ -93,3 +93,22 @@ export const clientBriefingView = async (req, res, next) => {
   }
 };
 
+export const clientBriefingAllData = async (req, res, next) => {
+  try {
+    const result = await ClientBriefingModel.find();
+
+    if (!result || result.length === 0) {
+      return next(new AppError("Data not found", 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "All Client Briefing Data",
+      data: result,
+    });
+    
+  } catch (error) {
+    next(new AppError(error.message, 500));
+  }
+};
+

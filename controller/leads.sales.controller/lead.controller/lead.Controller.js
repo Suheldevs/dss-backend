@@ -7,7 +7,7 @@ export const createLead = async (req, res) => {
     console.log("data", req.body);
 
     const { concernPersonName, phone } = req.body;
-    
+
     if (!req.body || !concernPersonName || !phone) {
       return res.status(400).json({
         success: false,
@@ -30,8 +30,8 @@ export const getAllLeads = async (req, res) => {
     const result = await leadModel.find()
     res.status(200).json({
       success: true,
-      message:"All Leads",
-      data: {result},
+      message: "All Leads",
+      data: { result },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -41,9 +41,9 @@ export const getAllLeads = async (req, res) => {
 // GET Single Lead
 export const getLeadById = async (req, res) => {
   try {
-        const{id}=req.params;
-        console.log("id",id);
-        
+    const { id } = req.params;
+    console.log("id", id);
+
     const result = await leadModel.findById(id)
 
 
@@ -51,7 +51,7 @@ export const getLeadById = async (req, res) => {
       return res.status(404).json({ success: false, message: "Lead not found" });
     }
 
-    res.status(200).json({ success: true, data: {result} });
+    res.status(200).json({ success: true, data: { result } });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -60,10 +60,12 @@ export const getLeadById = async (req, res) => {
 // UPDATE Lead
 export const updateLead = async (req, res, next) => {
   try {
-    
-    const { salesTLId, saleEmployeeId,saleEmployeeId2 } = req.body;
-
-    // If TL ID is given, validate role
+    const { salesTLId, saleEmployeeId, saleEmployeeId2 } = req.body;
+    const { id } = req.params;
+    const leadData = await leadModel.findById(id);
+    if (leadData.saleEmployeeId2) {
+      return next(new AppError("Lead can only be assigned two times", 400));
+    }
     if (salesTLId) {
       const tl = await saleRegistrationModel.findById(salesTLId);
       if (!tl || tl.role !== "SalesTL") {
@@ -125,21 +127,18 @@ export const updateLead = async (req, res, next) => {
       contentShared,
       recceStatus,
       costumerStatus,
-      leadStatus: leadStatus?.trim() || "Pending",
+      leadStatus,
       salesHodId,
       notes,
     };
 
     if (salesTLId) updateFields.salesTLId = salesTLId;
     if (saleEmployeeId) updateFields.saleEmployeeId = saleEmployeeId;
-    if(saleEmployeeId2) updateFields.saleEmployeeId2=saleEmployeeId2;
-    if(saleEmployeeId) updateFields.leadStatus='In Progress';
-    if(saleEmployeeId2) updateFields.leadStatus='In Progress';
-
-    console.log("updateFields",updateFields);
+    if (saleEmployeeId2) updateFields.saleEmployeeId2 = saleEmployeeId2;
+    if (saleEmployeeId || saleEmployeeId2) updateFields.leadStatus = "In Progress";
+    console.log("updateFields", updateFields);
 
     // return;
-    
 
     const updatedLead = await leadModel.findByIdAndUpdate(
       req.params.id,
@@ -156,7 +155,7 @@ export const updateLead = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: "Lead updated successfully",
+      message: "Lead updated success",
       data: updatedLead,
     });
 
@@ -186,14 +185,14 @@ export const deleteLead = async (req, res) => {
 
 //Pending least
 
-export const pandingList=async(req,res,next)=>{
-      try {
-            const result=await leadModel.find({leadStatus:"Pending"})
-              if(!result||result.length===0){
-                return next(new AppError("No Data found",404));
-              }
-              return res.status(200).json({success:true,message:"Panding List",data:{result}});
-      } catch (error) {
-        return next(new AppError(error.message,500))
-      }
+export const pandingList = async (req, res, next) => {
+  try {
+    const result = await leadModel.find({ leadStatus: "Pending" })
+    if (!result || result.length === 0) {
+      return next(new AppError("No Data found", 404));
+    }
+    return res.status(200).json({ success: true, message: "Panding List", data: { result } });
+  } catch (error) {
+    return next(new AppError(error.message, 500))
+  }
 }
