@@ -151,9 +151,9 @@ export const updateLead = async (req, res, next) => {
       });
     }
 
-    return res.status(404).json({
-      success: false,
-      message: "Lead updated successfull2222y",
+    return res.status(200).json({
+      success: true,
+      message: "Lead updated successfully",
       data: updatedLead,
     });
 
