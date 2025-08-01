@@ -20,18 +20,22 @@ const port = process.env.PORT || 8000;
   
 const app = express();
 app.use(morgan("dev"));
+
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
 app.use(cookieParser()); // ✅ VERY IMPORTANT
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://yourdomain.com',"http://localhost:5173","https://dss-crm.netlify.app","https://dss-crm.netlify.app","https://512e89c94599.ngrok-free.app"],
+  origin: ['http://localhost:3000', 'https://yourdomain.com',"http://localhost:5173",
+    "https://dss-crm.netlify.app","https://dss-crm.netlify.app","https://512e89c94599.ngrok-free.app",
+    "https://9tcwr6rk-5173.inc1.devtunnels.ms"
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
 
-
 app.use("/api/v1", apiRoute);
+
 
 app.get("/", (req, res) => {
   res.status(200).json("Server started successfully!");
@@ -46,8 +50,6 @@ app.use((req, res) => {
 });
 
 app.use(errorMiddleware);
-
-
 
 
 // ✅ Start Server

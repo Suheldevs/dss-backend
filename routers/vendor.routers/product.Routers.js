@@ -4,8 +4,15 @@ import { bulkImportProducts, createProduct, getProducts, updateProduct } from ".
 import authMiddleware from "../../middlewares/vendor.middlewares/authMiddlewares.js";
 import { createOrder, getOrders } from "../../controller/vendor.controller/order.Controller.js";
 import { getDashboardStats } from "../../controller/vendor.controller/dashboard.Controller.js";
+import { createUserProfile } from "../../controller/vendor.controller/userProfile.Controller.js";
+// import upload from "../../middlewares/vendor.middlewares/uploadMiddlewares.js";
 
 
+
+// Memory storage for cloudinary upload
+import multer from "multer";
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 // Dashboard Data details fethced 
 vendorRoutes.get("/dashboard/data",authMiddleware,getDashboardStats);     // Create product Data
@@ -24,6 +31,13 @@ vendorRoutes.post("/orders/create",authMiddleware,createOrder)
 vendorRoutes.get("/orders/get",authMiddleware,getOrders)
 // Order Section End
 
+// Updating Vendor Profile-Management-Data Start.
+vendorRoutes.post("/profile/create", upload.fields([
+    { name: "photo", maxCount: 1 },
+    { name: "contract", maxCount: 1 }
+  ]),createUserProfile)
+
+// Updating Vendor Profile-Management-Data End.
 
 export default vendorRoutes;
  

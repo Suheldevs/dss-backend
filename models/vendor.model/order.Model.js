@@ -14,22 +14,6 @@ const orderSchema = new Schema(
           required: true,
           min: [1, "Quantity must be at least 1"],
         },
-        rateUnit: {
-          type: Number,
-          required: true,
-        },
-        totalCost: {
-          type: Number,
-          required: true, // quantity * rateUnit
-        },
-        discount: {
-          type: Number,
-          default: 0, // per-product discount
-        },
-        netCost: {
-          type: Number,
-          required: true, // totalCost - discount
-        },
       },
     ],
 
@@ -45,11 +29,11 @@ const orderSchema = new Schema(
         },
 
     // Order Status
-    status: {
-      type: String,
-      enum: ["Pending", "Dispatched", "Completed", "Cancelled"],
-      default: "Pending",
-    },
+ status: {
+    type: String,
+    enum: ['Pending','Dispatched', 'Completed', 'Cancelled'],
+    default: 'Pending',
+  },
 
     // Invoice and Payment
     invoiceId: {
@@ -59,7 +43,7 @@ const orderSchema = new Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ["Unpaid", "Paid", "Partially Paid", "Failed"],
+      enum: ["Unpaid", "Paid"],
       default: "Unpaid",
     },
     paymentMethod: {

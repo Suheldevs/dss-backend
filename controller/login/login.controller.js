@@ -1,7 +1,7 @@
 import AppError from "../../util/appError.js";
 // import loginService from "../../services/login/loginService.js";
 import { generate_Token } from "../../middlewares/auth.js";
-import saleRegistrationModel from "../../models/sales.model/sales.registration.model/registration.model.js";
+import saleRegistrationModel from "../../models/registration/registration.model.js";
 import bcrypt from "bcrypt";
 const loginController = {
     async login(req, res, next) {

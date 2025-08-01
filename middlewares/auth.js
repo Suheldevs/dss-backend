@@ -5,7 +5,7 @@ dotenv.config();
 
 const key = process.env.SECRET_KEY;
 
-import saleRegistrationModel from "../models/sales.model/sales.registration.model/registration.model.js";
+import saleRegistrationModel from "../models/registration/registration.model.js";
 
 const generate_Token = (data) => {
     try {
