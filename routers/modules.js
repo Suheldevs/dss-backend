@@ -18,7 +18,6 @@ import salesDepartmentReportRoute from "./leads/sales.department.report.route.js
 // Vendor Routes End Here :- 
 
 const router = Router();
-
 // ✅ All routes mounted here
 router.use("/role", RoleRoutes);
 router.use("/login",loginRoute);

@@ -1,12 +1,13 @@
 
 import tlReportModel from "../../models/leads/tl.report.model.js"
+import registrationModel from "../../models/registration/registration.model.js";
 import AppError from "../../util/appError.js";
 import moment from "moment"
 
 export const createTLReport = async (req, res, next) => {
   try {
     const {
-      sift,
+      shift,
       hot = [],
       warm = [],
       cold = [],
@@ -23,12 +24,12 @@ export const createTLReport = async (req, res, next) => {
     }
      const existinReport=await tlReportModel.findOne({
        Id:id,
-       sift,
+       shift,
        createdAt:{$gte:startofDay,$lte:endofDay}
      });
 
      if(existinReport){
-       return next(new AppError(`You have already submitted ${sift} report today`, 400))    
+       return next(new AppError(`You have already submitted ${shift} report today`, 400))    
      }
     
     // ret/urn
@@ -41,7 +42,7 @@ export const createTLReport = async (req, res, next) => {
       // 🔹 Create new report with counts
     const savedReport = new tlReportModel({
       Id:id,
-      sift,
+      shift,
       hot,
       warm,
       cold,
@@ -88,4 +89,6 @@ export const viewReport = async (req, res, next) => {
      return next(new AppError(error.message,500));
   }
 };
+
+
 

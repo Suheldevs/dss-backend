@@ -7,6 +7,7 @@ import { uploadFilesToCloudinary } from "../../middlewares/file.upload/upload.mi
 import { generateProjectId } from "../../util/unique/unique.id.js";
 import leadModel from "../../models/leads/leadModel.js";
 import registrationModel from "../../models/registration/registration.model.js";
+import empIdModel from "../../models/unique/unique.empId.js";
 
 
 //location find
@@ -322,6 +323,20 @@ export const getProjectByID = async (req, res, next) => {
   }
 };
 
+export const getAllProject=async (req,res,next)=>{
+  try {
+       const{id}=req.params;
+         const registration=await registrationModel.findById(id);
+         
+         const leadData=await leadModel.findById(id);
+         console.log(leadData);
+         const data=await empIdModel(leadData.employeeleadsAccept)
+         const result=await ClientBriefingModel.find()
+      
+  } catch (error) {
+    return next(new AppError(error.message,400));
+  }
+}
 
 
 

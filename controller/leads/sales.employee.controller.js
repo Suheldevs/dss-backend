@@ -8,7 +8,7 @@ import moment from "moment"
 export const createEmployeeReport = async (req, res, next) => {
   try {
     const {
-      sift,
+      shift,
       hot = [],
       warm = [],
       cold = [],
@@ -20,8 +20,8 @@ export const createEmployeeReport = async (req, res, next) => {
     if(!validateEmployee){
       return next(new AppError("Employee not found",404));
     }
-    if (!id||!sift) {
-      return next(new AppError("Id and Sift is required", 400))
+    if (!id||!shift) {
+      return next(new AppError("Id and shift is required", 400))
     }
     if (!id) {
       return next(new AppError("Id is required", 400))
@@ -31,12 +31,12 @@ export const createEmployeeReport = async (req, res, next) => {
     const endofDay = moment().endOf("day").toDate();
     const existinReport = await tlReportModel.findOne({
       Id: id,
-      sift,
+      shift,
       createdAt: { $gte: startofDay, $lte: endofDay }
     });
 
     if (existinReport) {
-      return next(new AppError(`You have already submitted the ${sift} report today`, 400))
+      return next(new AppError(`You have already submitted the ${shift} report today`, 400))
     }
     let totalAmount = 0;
     [...hot, ...cold, ...win, ...warm].forEach((item) => {
@@ -47,7 +47,7 @@ export const createEmployeeReport = async (req, res, next) => {
     // 🔹 Create new report with counts
     const savedReport = new tlReportModel({
       Id: id,
-      sift,
+      shift,
       hot,
       warm,
       cold,
@@ -109,18 +109,22 @@ export const todayData = async (req, res, next) => {
     const endDate = new Date();
     endDate.setHours(23, 59, 59); // Today 23:59:59
 
-    const data = await tlReportModel.find({
-      Id: id, // Assuming you're filtering by this ID
+    const result = await tlReportModel.find({
+      Id:id, // Assuming you're filtering by this ID
       createdAt: {
         $gte: startDate,
         $lte: endDate,
       },
     });
+    
+    if(!result||result.length===0){
+      return next(new AppError("Today Report not found",404))
+    }
 
     res.status(200).json({
       success:true,
-      status: "success",
-      data,
+      message: "All data",
+      data:{result},
     });
   } catch (error) {
     return next(new AppError(error.message, 500));

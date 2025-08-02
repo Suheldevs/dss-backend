@@ -1,17 +1,17 @@
 import leadModel from "../../models/leads/leadModel.js"
+import registrationModel from "../../models/registration/registration.model.js";
 import saleRegistrationModel from "../../models/registration/registration.model.js";
 import AppError from "../../util/appError.js";
 // CREATE Lead
 export const createLead = async (req, res) => {
   try {
     console.log("data", req.body);
+    const { concernPersonName, phone,userId } = req.body;
 
-    const { concernPersonName, phone } = req.body;
-
-    if (!req.body || !concernPersonName || !phone) {
+    if (!req.body || !concernPersonName || !phone,!userId) {
       return res.status(400).json({
         success: false,
-        message: "consern Person Name  and Phone are required",
+        message: "consern Person Name ,Phone and userId are required",
       });
     }
     const lead = await leadModel.create(req.body);
@@ -72,6 +72,9 @@ export const updateLead = async (req, res, next) => {
         return next(new AppError("Only Sales TL can assign a lead", 402));
       }
     }
+
+    // Lead Accept API (Part inside your updateLead or a new controller)
+
     // if
     const {
       leadSource,
@@ -102,8 +105,17 @@ export const updateLead = async (req, res, next) => {
       salesHodId,
       employee1LeadAcceptanceStatus,
       employee2LeadAcceptanceStatus,
+      leadAccept,
       notes,
     } = req.body;
+
+    if (leadAccept === true) {
+      leadData.employeeleadsAccept.push({
+        status: true,
+        time: new Date()
+      });
+      await leadData.save(); // Important: save leadData
+    }
 
     if (saleEmployeeId) {
       leadData.steps.push({ stepName: "leadeAssion1", time: new Date() });
@@ -212,4 +224,50 @@ export const pandingList = async (req, res, next) => {
   }
 }
 
+//get lead by employee all acceped lead ;
 
+export const getAllAssionLead = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const result = await leadModel.find({
+      $or: [{ saleEmployeeId: id }, { saleEmployeeId2: id }]
+    })
+    if (!result || result.length === 0) {
+      return next(new AppError("Assion leads not found", 404))
+    }
+    return res.status(200).json({ success: true, message: "All Data", data: { result } });
+
+  } catch (error) {
+    return next(new AppError(error.message, 500))
+  }
+}
+
+
+export const getAllLeadsById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const registration = await registrationModel.findById(id)
+    if (!registration) {
+      return next(new AppError("Employee not found", 404));
+    }
+    if (registration.role === "SaleHOD") {
+      const result = await leadModel.find();
+      if (!result || result.length === 0) return next(new AppError("Leads not found", 404))
+      return res.status(200).json({ success: true, message: "All Leads", data: { result } })
+    }
+    if (registration.role === "SalesTL") {
+      const result = await leadModel.find()
+      if (!result || result.length === 0) return next(new AppError("Leads not found", 404))
+      return res.status(200).json({ success: true, message: "All Leads", data: { result } })
+    }
+    if (registration.role === "SaleEmployee") {
+      const result = await leadModel.find({ $or: [{ saleEmployeeId: id }, { saleEmployeeId2: id }] })
+      if (!result || result.length === 0)return next(new AppError("No Leads Assigned", 404));
+      return res.status(200).json({ success: true, message: "All Assigned Leads", data: { result } })
+    }
+     return next (new AppError("Role not match",400));
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
+}

@@ -1,10 +1,10 @@
-import SalesDepartmentReport from "../models/salesDepartmentReport.model.js";
-import AppError from "../utils/appError.js"; // Optional, if you use a custom error handler
+import SalesDepartmentReportModel from "../../models/leads/sales.department.report.model.js";
+import AppError from "../../util/appError.js"; // Optional, if you use a custom error handler
 
 // Create a new report
 
 // CREATE a new Sales Department Report
-export const createReport = async (req, res, next) => {
+export const createReportDepartment = async (req, res, next) => {
   try {
     const {
       dailyRevenueTarget,
@@ -88,7 +88,7 @@ export const createReport = async (req, res, next) => {
       remarks,
     };
 
-    const report = await SalesDepartmentReport.create(reportData);
+    const report = await SalesDepartmentReportModel.create(reportData);
 
     res.status(201).json({
       status: "success",

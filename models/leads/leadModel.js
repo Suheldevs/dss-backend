@@ -102,6 +102,10 @@ const leadSchema = new Schema({
     type: String,
     default: ""
   },
+  userId:{
+      type:Schema.Types.ObjectId,
+      default:null
+  },
   chanel: {
     type: String,
     default: ""
@@ -109,7 +113,7 @@ const leadSchema = new Schema({
   steps: [
     {
       stepName: { type: String },
-      time: { type: Date}
+      time: { type: Date }
     }
   ],
   employee1LeadAcceptanceStatus: {
@@ -122,6 +126,18 @@ const leadSchema = new Schema({
     enum: ["Pending", "Accepted", "Rejected"],
     default: "Pending"
   },
+  employeeleadsAccept: [
+    {
+      status: {
+        type: Boolean,
+        default: false
+      },
+      time: {
+        type: Date,
+        default: Date.now // <- correct usage
+      }
+    }
+  ],
   recceStatus: {
     type: String,
     enum: ["Pending", "In Progress", "Success", "Close"],

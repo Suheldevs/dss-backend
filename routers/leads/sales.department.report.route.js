@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { createEmployeeReport } from "../../controller/leads/sales.employee.controller.js";
+import { createReportDepartment } from "../../controller/leads/sales.department.rep.controller.js";
 
 const salesDepartmentReportRoute=Router();
 
-salesDepartmentReportRoute.post("/create",createEmployeeReport)
+salesDepartmentReportRoute.post("/create",createReportDepartment)
 
 
 

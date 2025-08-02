@@ -11,7 +11,7 @@ const tlReportSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref:"Registration"
     },
-    sift: {
+    shift: {
       type: String,
       enum: ["Morning", "Evening"],
       required: true,

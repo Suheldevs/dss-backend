@@ -50,6 +50,6 @@ const salesDepartmentReportSchema = new Schema(
   }
 );
 
-const SalesDepartmentReport = model("SalesDepartmentReport", salesDepartmentReportSchema);
+const SalesDepartmentReportModel = model("SalesDepartmentReport", salesDepartmentReportSchema);
 
-export default SalesDepartmentReport;
+export default SalesDepartmentReportModel;
