@@ -2,7 +2,7 @@ import ClientBriefingModel from "../../models/leads/sales.client.briefing.model.
 import AppError from "../../util/appError.js";
 import cloudinary from "cloudinary"
 import mongoose from "mongoose";
-import axios from "axios";
+// import axios from "axios";
 import { uploadFilesToCloudinary } from "../../middlewares/file.upload/upload.middleware.js";
 import { generateProjectId } from "../../util/unique/unique.id.js";
 import leadModel from "../../models/leads/leadModel.js";
@@ -11,28 +11,28 @@ import empIdModel from "../../models/unique/unique.empId.js";
 
 
 //location find
-const getLocationFromCoordinates = async (latitude, longitude) => {
-  try {
-    const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
-      params: {
-        latlng: `${latitude},${longitude}`,
-        key: 'AIzaSyAfgvheqFqmVpddM0NNcJen3NhMfmxza7M',
-        region: 'IN',
-      },
-    });
+// const getLocationFromCoordinates = async (latitude, longitude) => {
+//   try {
+//     const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+//       params: {
+//         latlng: `${latitude},${longitude}`,
+//         key: 'AIzaSyAfgvheqFqmVpddM0NNcJen3NhMfmxza7M',
+//         region: 'IN',
+//       },
+//     });
 
-    console.log("🔍 Google API Full Response:", JSON.stringify(response.data, null, 2)); // Add this line
+//     console.log("🔍 Google API Full Response:", JSON.stringify(response.data, null, 2)); // Add this line
 
-    if (response.data && response.data.results.length > 0) {
-      return response.data.results[0].formatted_address;
-    } else {
-      throw new Error('Location not found for given coordinates');
-    }
-  } catch (error) {
-    console.error('❌ Error fetching address from coordinates:', error.message);
-    return null;
-  }
-};
+//     if (response.data && response.data.results.length > 0) {
+//       return response.data.results[0].formatted_address;
+//     } else {
+//       throw new Error('Location not found for given coordinates');
+//     }
+//   } catch (error) {
+//     console.error('❌ Error fetching address from coordinates:', error.message);
+//     return null;
+//   }
+// };
 
 //create
 export const createClientBriefing = async (req, res, next) => {

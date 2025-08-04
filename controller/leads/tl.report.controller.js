@@ -91,4 +91,14 @@ export const viewReport = async (req, res, next) => {
 };
 
 
+export const  reportCreate=async(req,res,next)=>{
+     try {
+          
+
+      } catch (error) {
+        return next(new AppError(error.message,500));
+     }
+}
+
+
 
