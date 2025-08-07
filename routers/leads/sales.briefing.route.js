@@ -5,7 +5,9 @@ import { createClientBriefing,
     updateClientBriefing,
     salesFromData,
     getProjectByID,
-    getAllProject
+    getAllProject,
+    getOureProject,
+    sendToRecce
  } from "../../controller/leads/sales.clent.brienfing.controller.js";
 
 const salesClientBriefingRoute = Router();
@@ -29,4 +31,8 @@ salesClientBriefingRoute.get("/get/all",clientBriefingAllData)
 
 salesClientBriefingRoute.get("/get/all/:id",getAllProject)
 
+//get our project....
+salesClientBriefingRoute.get("/get/our/project/:id",getOureProject)
+
+salesClientBriefingRoute.patch("/send/to-recce/:id",sendToRecce)
 export default salesClientBriefingRoute;

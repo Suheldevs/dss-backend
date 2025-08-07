@@ -7,7 +7,7 @@ export const createInitialProjectPayment = async (req, res, next) => {
     let { projectId, totalAmount, discount = 0, totalPaid, method, remarks } = req.body;
 
     if (!projectId || !totalAmount || !totalPaid || !method) {
-      return next(new AppError("Required fields missing", 400));
+      return next(new AppError("Required fields missing projectId totalAmount totalPaid method", 400));
     }
     const result = await ClientBriefingModel.findOne({_id:projectId});
       console.log("result",result);
@@ -63,9 +63,8 @@ export const addProjectPayment = async (req, res, next) => {
     let { projectId, amount, method, remarks } = req.body;
 
     if (!projectId || !amount || !method) {
-      return next(new AppError("Required fields missing", 400));
+      return next(new AppError("Required fields missing projectId amount method", 400));
     }
-
     amount = Number(amount);
     if (isNaN(amount)) {
       return next(new AppError("Invalid amount", 400));

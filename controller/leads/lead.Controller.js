@@ -8,7 +8,7 @@ export const createLead = async (req, res) => {
     console.log("data", req.body);
     const { concernPersonName, phone,userId } = req.body;
 
-    if (!req.body || !concernPersonName || !phone,!userId) {
+    if (!req.body || !concernPersonName || !phone||!userId  ) {
       return res.status(400).json({
         success: false,
         message: "consern Person Name ,Phone and userId are required",
@@ -27,7 +27,7 @@ export const createLead = async (req, res) => {
 // GET All Leads
 export const getAllLeads = async (req, res) => {
   try {
-    const result = await leadModel.find()
+    const result = await leadModel.find().sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
       message: "All Leads",
@@ -44,7 +44,7 @@ export const getLeadById = async (req, res) => {
     const { id } = req.params;
     console.log("id", id);
 
-    const result = await leadModel.findById(id)
+    const result = await leadModel.findById(id).sort({ createdAt: -1 });
 
 
     if (!result) {
@@ -214,7 +214,7 @@ export const deleteLead = async (req, res) => {
 
 export const pandingList = async (req, res, next) => {
   try {
-    const result = await leadModel.find({ leadStatus: "Pending" })
+    const result = await leadModel.find({ leadStatus: "Pending" }).sort({ createdAt: -1 });
     if (!result || result.length === 0) {
       return next(new AppError("No Data found", 404));
     }
@@ -232,7 +232,7 @@ export const getAllAssionLead = async (req, res, next) => {
 
     const result = await leadModel.find({
       $or: [{ saleEmployeeId: id }, { saleEmployeeId2: id }]
-    })
+    }).sort({ createdAt: -1 });
     if (!result || result.length === 0) {
       return next(new AppError("Assion leads not found", 404))
     }
@@ -252,7 +252,7 @@ export const getAllLeadsById = async (req, res, next) => {
       return next(new AppError("Employee not found", 404));
     }
     if (registration.role === "SaleHOD") {
-      const result = await leadModel.find();
+      const result = await leadModel.find().sort({ createdAt: -1 });;
       if (!result || result.length === 0) return next(new AppError("Leads not found", 404))
       return res.status(200).json({ success: true, message: "All Leads", data: { result } })
     }
@@ -271,3 +271,27 @@ export const getAllLeadsById = async (req, res, next) => {
     return next(new AppError(error.message, 500));
   }
 }
+
+//jisame lead create kiya h 
+export const leadsCreateEmployee = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const result = await leadModel.find({userId: id }).sort({ createdAt: -1 });;
+
+    if (!result || result.length === 0) {
+      return next(new AppError("No leads found for this employee.", 404));
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Leads fetched successfully.",
+      data: {result},
+    });
+
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
+};
+
+

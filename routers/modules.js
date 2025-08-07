@@ -15,6 +15,8 @@ import projectPaymentRoute from "./leads/project.payment.route.js";
 // Vendor Routes Start Here :- 
 import vendorRoutes from "../routers/vendor.routers/product.Routers.js";
 import salesDepartmentReportRoute from "./leads/sales.department.report.route.js";
+import recceRoute from "./recce/recce.Route.js";
+import salesDashboardRoute from "./leads/sales.dashboard.route.js";
 // Vendor Routes End Here :- 
 
 const router = Router();
@@ -29,7 +31,9 @@ router.use("/lead",leadRoute);
 router.use("/sales/tl-report",tlReportRoute)
 router.use("/sales/employee-report",salesEmployeRoute)
 router.use("/sales/department-report",salesDepartmentReportRoute)
+router.use("/sales/dashboard",salesDashboardRoute)
 
+router.use('/recce',recceRoute)
 //project
 router.use('/sales/client-briefing',salesClientBriefingRoute)
 

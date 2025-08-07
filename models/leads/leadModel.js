@@ -1,3 +1,4 @@
+
 import { Schema, model } from "mongoose";
 
 const leadSchema = new Schema({
@@ -104,7 +105,7 @@ const leadSchema = new Schema({
   },
   userId:{
       type:Schema.Types.ObjectId,
-      default:null
+      ref:"Registration"
   },
   chanel: {
     type: String,

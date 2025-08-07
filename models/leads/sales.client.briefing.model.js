@@ -6,6 +6,14 @@ const saleClientBriefingSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Lead"
     },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "Registration"
+    },
+    salesTLId: {
+      type: Schema.Types.ObjectId,
+      ref: "Registration"
+    },
     clientName: {
       type: String,
       default: null
@@ -50,28 +58,33 @@ const saleClientBriefingSchema = new Schema(
       type: String,
       default: null
     },
-    projectId:{
-        type:String,
-        default:null
+    projectId: {
+      type: String,
+      default: null
     },
-    salesManagementStep:{
-      type:Number,
-      default:0
+    salesManagementStep: {
+      type: Number,
+      default: 0
     },
-    requirement:{
-      type:String,
-      default:null
+    requirement: {
+      type: String,
+      default: null
     },
-    address:{
-       type:String,
-       default:null 
+    recceStatus: {
+      type: Boolean,
+      default: false
+    },
+
+    address: {
+      type: String,
+      default: null
     },
     documentUpload: {
       type: [{
-        url:{type:String,require:true},
-        public_id:{type:String,require:true}
+        url: { type: String, require: true },
+        public_id: { type: String, require: true }
       }],
-       default:[]
+      default: []
     }
   },
   {

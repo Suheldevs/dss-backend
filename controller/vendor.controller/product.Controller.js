@@ -9,7 +9,7 @@ export const createProduct = async (req, res) => {
       brand,
       unitType,
       size,
-      stock,
+      instock,
       rateUnit,
       description,
     } = req.body;
@@ -20,7 +20,7 @@ export const createProduct = async (req, res) => {
       brand,
       unitType,
       size,
-      stock,
+      instock,
       rateUnit,
       description,
       importedBy : req.user._id  // Automatically set from middleware
@@ -133,39 +133,63 @@ export const getProducts = async (req, res) => {
 
 
 // Update Product by ID
+
 export const updateProduct = async (req, res) => {
   try {
-    const { id } = req.params; // Product ID from route
+    const { id } = req.params; // Product ID
     const updateFields = req.body;
 
-    // Optional: Ensure only allowed fields are updated
+    // Find the product first
+    const product = await productModel.findOne({
+      _id: id,
+      importedBy: req.user._id,
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found or unauthorized" });
+    }
+
+    // Optional: limit fields that can be updated
     const allowedFields = [
       "productName",
       "productCode",
       "brand",
       "unitType",
       "size",
-      "stock",
       "rateUnit",
       "description"
     ];
 
+    // Prepare update object
     const updates = {};
+
+    // Copy allowed fields
     for (const key of allowedFields) {
       if (updateFields[key] !== undefined) {
         updates[key] = updateFields[key];
       }
     }
 
-    const updatedProduct = await productModel.findOneAndUpdate(
-      { _id: id, importedBy: req.user._id }, // ensures vendor can only update their own product
-      updates,
-      { new: true }
-    );
+    // 🧠 Handle `instock` update logic
+    if (updateFields.instock !== undefined) {
+      const addedStock = Number(updateFields.instock);
+      if (isNaN(addedStock)) {
+        return res.status(400).json({ message: "Invalid stock value" });
+      }
 
-    if (!updatedProduct) {
-      return res.status(404).json({ message: "Product not found or unauthorized" });
+      // ✅ Add new stock to existing inStock
+      const newInStock = product.instock + addedStock;
+
+      updates.instock = newInStock;
+
+      // ✅ Recalculate totalStock = instock + usedStock
+      updates.totalStock = newInStock + (product.usedStock || 0);
     }
+
+    // Update the product
+    const updatedProduct = await productModel.findByIdAndUpdate(id, updates, {
+      new: true,
+    });
 
     res.status(200).json({ message: "Product updated", product: updatedProduct });
   } catch (error) {

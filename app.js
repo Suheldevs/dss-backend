@@ -28,14 +28,13 @@ app.use(cookieParser()); // ✅ VERY IMPORTANT
 app.use(cors({
   origin: ['http://localhost:3000', 'https://yourdomain.com',"http://localhost:5173",
     "https://dss-crm.netlify.app","https://dss-crm.netlify.app","https://512e89c94599.ngrok-free.app",
-    "https://9tcwr6rk-5173.inc1.devtunnels.ms"
+    "https://9tcwr6rk-5173.inc1.devtunnels.ms","https://dfmr0pxf-5173.inc1.devtunnels.ms"
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
   credentials: true
 }));
 
 app.use("/api/v1", apiRoute);
-
 
 app.get("/", (req, res) => {
   res.status(200).json("Server started successfully!");

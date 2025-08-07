@@ -12,7 +12,7 @@ export const getDashboardStats = async (req, res) => {
     const productsAvailable = products.length;
 
     // 2. Total Quantity in Stock
-    const totalStock = products.reduce((sum, product) => sum + (product.stock || 0), 0);
+    const totalAvailableStock = products.reduce((sum, product) => sum + (product.inStock || 0), 0);
 
     // 3. Total Supplied (from orders)
     const dispatchedOrders = await orderModel.find({
@@ -38,7 +38,7 @@ export const getDashboardStats = async (req, res) => {
 
     res.status(200).json({
       productsAvailable,
-      totalStock,
+      totalAvailableStock,
       totalSupplied,
       pendingDeliveries,
     });
