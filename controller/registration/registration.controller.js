@@ -114,3 +114,27 @@ export const salesEmployeeList = async (req, res, next) => {
     return next(new AppError(error.message), 500);
   }
 }
+
+//All employee
+export const allemployee = async (req, res, next) => {
+  try {
+    const result = await registrationModel.find({ role: "SaleEmployee" });
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Sale Employees found",
+        data: []
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Sale Employees fetched successfully",
+      data: {result}
+    });
+
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
+};

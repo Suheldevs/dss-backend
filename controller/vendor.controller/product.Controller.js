@@ -9,10 +9,23 @@ export const createProduct = async (req, res) => {
       brand,
       unitType,
       size,
-      instock,
+      inStock,
+      gstPercent,
       rateUnit,
       description,
+      category,
     } = req.body;
+
+        console.log("REQ BODY:", req.body); // <-- Debug here
+
+ // 1️⃣ Check if productCode already exists
+    const existingProduct = await productModel.findOne({ productCode });
+    if (existingProduct) {
+      return res.status(400).json({
+        success: false,
+        message: `Product with code "${productCode}" already exists`,
+      });
+    }
 
     const newProduct = new productModel({
       productName,
@@ -20,61 +33,153 @@ export const createProduct = async (req, res) => {
       brand,
       unitType,
       size,
-      instock,
+      inStock,
+      gstPercent,
       rateUnit,
       description,
+      category,
       importedBy : req.user._id  // Automatically set from middleware
     });
 
     await newProduct.save();
-    res.status(201).json({ message: "Product created", product: newProduct });
+    res.status(201).json({ message: "Product added successfully", product: newProduct });
   } catch (error) {
-    console.error("Product creation error:", error);
-    res.status(500).json({ message: "Failed to create product", error: error.message });
+    // 3️⃣ Handle duplicate key error from MongoDB
+    if (error.code === 11000 && error.keyPattern?.productCode) {
+      return res.status(400).json({
+        success: false,
+        message: `Product code "${req.body.productCode}" already exists`,
+      });
+    }
+     res.status(500).json({ message: "Failed to create product", error: error.message });
   }
 };
 
 //create new data in Bulk
 export const bulkImportProducts = async (req, res) => {
   try {
-    const vendorId = req.user._id;
     const products = req.body;
 
     if (!Array.isArray(products) || products.length === 0) {
-      return res.status(400).json({ message: "No products provided." });
+      return res.status(400).json({
+        success: false,
+        message: "No products provided for import.",
+      });
     }
 
-    const enrichedProducts = products.map(product => ({
-      ...product,
-      productCode: product.productCode?.toUpperCase(),
-      productName: product.productName?.trim(),
+    // ✅ Attach importedBy from logged-in vendor
+    const vendorId = req.user._id;
+    const productsWithVendor = products.map((p) => ({
+      ...p,
       importedBy: vendorId,
+      totalStock: p.inStock || 0,
     }));
 
-    const insertedProducts = await productModel.insertMany(enrichedProducts);
+    // ✅ Check for duplicate product codes in DB
+    const codes = productsWithVendor.map((p) => p.productCode);
+    const existing = await productModel.find({
+      importedBy: vendorId,
+      productCode: { $in: codes },
+    }).select("productCode");
+
+    if (existing.length > 0) {
+      const existingCodes = existing.map((e) => e.productCode);
+      return res.status(400).json({
+        success: false,
+        message: "Some product codes already exist.",
+        duplicateCodes: existingCodes,
+      });
+    }
+
+    // ✅ Insert products
+    await productModel.insertMany(productsWithVendor);
 
     res.status(201).json({
-      message: `${insertedProducts.length} products uploaded successfully.`,
-      data: insertedProducts,
+      success: true,
+      message: `${productsWithVendor.length} products imported successfully.`,
     });
   } catch (error) {
-    console.error('Bulk import error:', error);
-    res.status(500).json({ message: 'Failed to import products.', error: error.message });
+    // ✅ Handle Mongo duplicate key error (extra safety)
+    if (error.code === 11000) {
+      const duplicateField = Object.keys(error.keyValue)[0];
+      const duplicateValue = error.keyValue[duplicateField];
+      return res.status(400).json({
+        success: false,
+        message: `Duplicate ${duplicateField}: "${duplicateValue}" already exists.`,
+      });
+    }
+
+    console.error("Import error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to import products.",
+      error: error.message,
+    });
   }
 };
 
 
 // Get all products
+// ✅ Get all products for the logged-in vendor
 export const getProducts = async (req, res) => {
   try {
+    // Ensure user is authenticated
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
 
-    const products = await productModel.find({ importedBy: req.user._id });
-    res.status(200).json(products);
+    // Fetch products for this vendor
+    const products = await productModel.find({ importedBy: req.user._id }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Products fetched successfully",
+      data: [...products]
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch products", error:error.message });
+    console.error("❌ Error fetching products:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch products",
+      error: error.message,
+    });
   }
 };
 
+// for delete db data 
+// export const getProducts = async (req, res) => {
+//   try {
+//     // Ensure user is authenticated
+//     if (!req.user || !req.user._id) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Unauthorized access",
+//       });
+//     }
+
+//     // 🔴 Delete all products of this vendor before fetching
+//     await productModel.deleteMany({ importedBy: req.user._id });
+
+//     // Now fetch (this will return empty array because sab delete ho gaya)
+//     const products = await productModel.find({ importedBy: req.user._id }).sort({ createdAt: -1 });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Products deleted & fetched successfully",
+//       data: products,
+//     });
+//   } catch (error) {
+//     console.error("❌ Error in getProducts:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to delete & fetch products",
+//       error: error.message,
+//     });
+//   }
+// };
 
 // import productModel from "../models/productModel.js";
 // import orderModel from "../models/orderModel.js"; // import your order model
@@ -138,7 +243,7 @@ export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params; // Product ID
     const updateFields = req.body;
-
+console.log(" req.body", req.body)
     // Find the product first
     const product = await productModel.findOne({
       _id: id,
@@ -157,7 +262,9 @@ export const updateProduct = async (req, res) => {
       "unitType",
       "size",
       "rateUnit",
-      "description"
+      "gstPercent",
+      "description",
+      "category"
     ];
 
     // Prepare update object
@@ -171,16 +278,16 @@ export const updateProduct = async (req, res) => {
     }
 
     // 🧠 Handle `instock` update logic
-    if (updateFields.instock !== undefined) {
-      const addedStock = Number(updateFields.instock);
+    if (updateFields.inStock !== undefined) {
+      const addedStock = Number(updateFields.inStock);
       if (isNaN(addedStock)) {
         return res.status(400).json({ message: "Invalid stock value" });
       }
 
       // ✅ Add new stock to existing inStock
-      const newInStock = product.instock + addedStock;
+      const newInStock = product.inStock + addedStock;
 
-      updates.instock = newInStock;
+      updates.inStock = newInStock;
 
       // ✅ Recalculate totalStock = instock + usedStock
       updates.totalStock = newInStock + (product.usedStock || 0);

@@ -8,7 +8,8 @@ import {
   getSalesUserById,
   updateSalesUser,
   deleteSalesUser,
-  salesEmployeeList
+  salesEmployeeList,
+  allemployee
 } from "../../controller/registration/registration.controller.js";
 
 
@@ -16,6 +17,7 @@ registrationRoute.post("/register",validateSalesUser,registerSalesUser);
 registrationRoute.get("/all", getAllSalesUsers);
 
 registrationRoute.get("/all/employee-zone-wise",salesEmployeeList)
+registrationRoute.get("/all/employee",allemployee)
 
 
 registrationRoute.get("/:id", getSalesUserById);

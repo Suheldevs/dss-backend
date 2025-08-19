@@ -1,77 +1,141 @@
-// import VendorProfileModel from "../models/VendorProfileModelModel.js";
+import mongoose from "mongoose";
+import VendorProfileModel from "../../models/vendor.model/profiledata.Model.js";
 
-import VendorProfileModel from "../../models/vendor.model/profiledata.Model";
-
-// Create or Add Vendor Profile
-export const createVendorProfileModel = async (req, res) => {
+// ✅ Create Vendor Profile
+export const createVendorProfile = async (req, res) => {
   try {
     const { userId } = req.body;
-
-    // Check if profile already exists
+    // Prevent duplicate
     const existingProfile = await VendorProfileModel.findOne({ userId });
     if (existingProfile) {
-      return res.status(400).json({ message: "Vendor profile already exists." });
+      return res.status(400).json({
+        success: false,
+        message: "Profile already exists for this user.",
+      });
+    }
+
+    // Attach uploaded files if provided
+    if (req.files?.profileImage?.[0]) {
+      req.body.profileImage = {
+        fileName: req.files.profileImage[0].originalname,
+        fileUrl: req.files.profileImage[0].path,
+      };
+    }
+    if (req.files?.contractForm?.[0]) {
+      req.body.contractForm = {
+        fileName: req.files.contractForm[0].originalname,
+        fileUrl: req.files.contractForm[0].path,
+      };
     }
 
     const newProfile = new VendorProfileModel(req.body);
-    const savedProfile = await newProfile.save();
-    res.status(201).json({ message: "Vendor profile created successfully", data: savedProfile });
+    await newProfile.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Vendor profile created successfully.",
+      data: newProfile,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to create profile", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error creating vendor profile.",
+      error: error.message,
+    });
   }
 };
 
-// Update Vendor Profile by userId
-export const updateVendorProfileModel = async (req, res) => {
+// ✅ Update Vendor Profile
+export const updateVendorProfile = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { userId } = req.params; // Get userId from URL params
 
+    // Attach uploaded files if provided
+    if (req.files?.profileImage?.[0]) {
+      req.body.profileImage = {
+        fileName: req.files.profileImage[0].originalname,
+        fileUrl: req.files.profileImage[0].path,
+      };
+    }
+    if (req.files?.contractForm?.[0]) {
+      req.body.contractForm = {
+        fileName: req.files.contractForm[0].originalname,
+        fileUrl: req.files.contractForm[0].path,
+      };
+    }
+
+    // Find and update by userId instead of _id
     const updatedProfile = await VendorProfileModel.findOneAndUpdate(
-      { userId },
+  { userId: new mongoose.Types.ObjectId(userId) }, // ✅ cast to ObjectId
       { $set: req.body },
       { new: true, runValidators: true }
     );
 
     if (!updatedProfile) {
-      return res.status(404).json({ message: "Vendor profile not found." });
+      return res.status(404).json({
+        success: false,
+        message: "Vendor profile not found for this userId.",
+      });
     }
 
-    res.status(200).json({ message: "Vendor profile updated successfully", data: updatedProfile });
+    res.status(200).json({
+      success: true,
+      message: "Vendor profile updated successfully.",
+      data: updatedProfile,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update profile", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error updating vendor profile.",
+      error: error.message,
+    });
   }
 };
 
-// Get Vendor Profile by userId
-export const getVendorProfileModelByUserId = async (req, res) => {
+
+// ✅ Update Only Profile Image
+export const updateVendorProfileImage = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const profile = await VendorProfileModel.findOne({ userId }).populate("userId");
-
-    if (!profile) {
-      return res.status(404).json({ message: "Vendor profile not found." });
+    // Check if image is uploaded
+    if (!req.files?.profileImage?.[0]) {
+      return res.status(400).json({
+        success: false,
+        message: "No profile image uploaded.",
+      });
     }
 
-    res.status(200).json(profile);
+    const profileImage = {
+      fileName: req.files.profileImage[0].originalname,
+      fileUrl: req.files.profileImage[0].path,
+    };
+
+    // Update only profileImage field
+    const updatedProfile = await VendorProfileModel.findOneAndUpdate(
+      { userId: new mongoose.Types.ObjectId(userId) },
+      { $set: { profileImage } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProfile) {
+      return res.status(404).json({
+        success: false,
+        message: "Vendor profile not found for this userId.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile image updated successfully.",
+      data: updatedProfile,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch profile", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error updating profile image.",
+      error: error.message,
+    });
   }
 };
 
-// Optional: Delete Vendor Profile
-export const deleteVendorProfileModel = async (req, res) => {
-  try {
-    const { userId } = req.params;
-
-    const deleted = await VendorProfileModel.findOneAndDelete({ userId });
-
-    if (!deleted) {
-      return res.status(404).json({ message: "Vendor profile not found." });
-    }
-
-    res.status(200).json({ message: "Vendor profile deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to delete profile", error: error.message });
-  }
-};

@@ -12,6 +12,11 @@ const productSchema = new mongoose.Schema({
       required: true,
       trim: true,
     },
+    category:{
+       type: String,
+      required: true,
+      trim: true,
+    },
     brand: {
       type: String,
       default: '',
@@ -31,6 +36,12 @@ const productSchema = new mongoose.Schema({
     rateUnit: {
       type: Number,
       default: 0,
+    },
+    gstPercent: {
+      type: Number,
+      default: 0, // store GST in percentage, e.g., 18 for 18%
+      min: 0,
+      max: 100,
     },
   inStock: {
      type: Number,
